@@ -26,6 +26,7 @@ def load_data(filename):
             counter += 1
             if counter % 1000 == 0:
                 print(counter)
+    print subreddits
 
     # each Subreddit's index in the FeatureVector is it's position in subreddits[]
     # iterate through file again
