@@ -9,54 +9,59 @@ def load_data(filename):
     # figure out what all the possible Subreddits are
     subreddits = []
     counter = 0
-    with open(filename) as reader:
-        for line in reader:
-            if len(line.strip()) == 0:
-                continue
-
-            split_line = line.split(",")
-            split_line.pop(0)
-            for subreddit in split_line:
-                # sometimes there is an extraneous "\n"
-                if "\n" in subreddit:
-                    subreddit = subreddit.replace("\n", "")
-                if subreddit not in subreddits:
-                    subreddits.append(subreddit)
-
-            counter += 1
-            if counter % 1000 == 0:
-                print(counter)
-    print subreddits
-
-    # each Subreddit's index in the FeatureVector is it's position in subreddits[]
-    # iterate through file again
     instances = []
-    counter = 0
-    with open(filename) as reader:
-        for line in reader:
-            if len(line.strip()) == 0:
-                continue
+    if "subreddits_small.txt" in filename or "subreddits.txt" in filename:
+        pass
+    else:
+        with open(filename) as reader:
+            for line in reader:
+                if len(line.strip()) == 0:
+                    continue
 
-            split_line = line.split(",")
-            label = ClassificationLabel(split_line[0])
-            split_line.pop(0)
+                split_line = line.split(",")
+                split_line.pop(0)
+                for subreddit in split_line:
+                    # sometimes there is an extraneous "\n"
+                    if "\n" in subreddit:
+                        subreddit = subreddit.replace("\n", "")
+                    if subreddit not in subreddits:
+                        subreddits.append(subreddit)
 
-            feature_vector = FeatureVector()
+                counter += 1
+                if counter % 1000 == 0:
+                    print(counter)
 
-            for subreddit in split_line:
-                # sometimes there is an extraneous "\n"
-                if "\n" in subreddit:
-                    subreddit = subreddit.replace("\n", "")
-                feature = subreddits.index(subreddit)
-                feature_vector.add(feature, 1)
+        # each Subreddit's index in the FeatureVector is it's position in subreddits[]
+        # iterate through file again
+        counter = 0
+        with open(filename) as reader:
+            for line in reader:
+                if len(line.strip()) == 0:
+                    continue
 
-            instance = Instance(feature_vector, label)
-            instances.append(instance)
+                split_line = line.split(",")
+                label = ClassificationLabel(split_line[0])
+                split_line.pop(0)
 
-            counter += 1
-            if counter % 1000 == 0:
-                print(counter)
+                feature_vector = FeatureVector()
 
+                for subreddit in split_line:
+                    # sometimes there is an extraneous "\n"
+                    if "\n" in subreddit:
+                        subreddit = subreddit.replace("\n", "")
+                    feature = subreddits.index(subreddit)
+                    feature_vector.add(feature, 1)
+
+                instance = Instance(feature_vector, label)
+                instances.append(instance)
+
+                counter += 1
+                if counter % 1000 == 0:
+                    print(counter)
+
+    # for i in instances:
+    #     print i._label
+    #     print i._feature_vector.feature_vector
     return instances
 
 
