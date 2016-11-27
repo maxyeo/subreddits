@@ -14,6 +14,14 @@ class Descriptions:
         self.start_time = time.clock()
         self.end_time = time.clock()
 
+    def load_corpus_from_file(self):
+        filename = "output/corpus.txt"
+        # filename = "data/problem.txt"
+        file_length = self.file_len(filename)
+        with open(filename) as reader:
+            for line in reader:
+                self.corpus.append(line)
+
     def corpus_to_file(self):
         counter = 0.0
         filename = "output/corpus.txt"
@@ -40,7 +48,6 @@ class Descriptions:
         fo.close()
 
     def load_descriptions_from_file(self):
-        counter = 0.0
         filename = "output/descriptions.txt"
         # filename = "data/problem.txt"
         file_length = self.file_len(filename)

@@ -14,8 +14,8 @@ def load_data(filename):
     if "subreddits_small.txt" in filename or "subreddits.txt" in filename:
         descriptions = Descriptions()
         # descriptions.load_subreddits_from_file()
-        descriptions.load_descriptions_from_file()
-        descriptions.corpus_to_file()
+        # descriptions.load_descriptions_from_file()
+        descriptions.load_corpus_from_file()
     else:
         with open(filename) as reader:
             for line in reader:
