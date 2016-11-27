@@ -35,6 +35,22 @@ class Descriptions:
             # print self.dictionary
             print len(self.dictionary)
 
+    def loadSubredditsFromFile(self):
+        counter = 0.0
+        filename = "output/display_names.txt"
+        file_length = self.file_len(filename)
+        print "loading subreddit names from file: " + filename
+        with open(filename) as reader:
+            for line in reader:
+                if len(line.strip()) == 0:
+                    continue
+                if "\n" in line:
+                    line = line.replace("\n", "")
+                self.subreddits.append(line)
+                counter += 1
+                self.update_progress(float(counter/file_length))
+        print self.subreddits
+
     def numSubredditsFromFirst(self):
         counter = 0.0
         filename = "data/data.txt"
