@@ -4,6 +4,7 @@ import sys
 import pickle
 
 from cs475_types import ClassificationLabel, FeatureVector, Instance, Predictor
+from parse_words import Descriptions
 
 def load_data(filename):
     # figure out what all the possible Subreddits are
@@ -11,7 +12,8 @@ def load_data(filename):
     counter = 0
     instances = []
     if "subreddits_small.txt" in filename or "subreddits.txt" in filename:
-        pass
+        descriptions = Descriptions()
+        descriptions.load(filename)
     else:
         with open(filename) as reader:
             for line in reader:

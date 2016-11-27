@@ -1,2 +1,4 @@
+Markdown==2.6.7
+beautifulsoup4==4.5.1
 scipy>=0.15.1
 numpy>=1.8.0
