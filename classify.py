@@ -13,7 +13,8 @@ def load_data(filename):
     instances = []
     if "subreddits_small.txt" in filename or "subreddits.txt" in filename:
         descriptions = Descriptions()
-        descriptions.load(filename)
+        descriptions.numSubredditsFromFirst()
+        # descriptions.load(filename)
     else:
         with open(filename) as reader:
             for line in reader:

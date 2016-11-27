@@ -1,13 +1,16 @@
+import time, sys
 from abc import ABCMeta, abstractmethod
 import json
 import markdown
 from bs4 import BeautifulSoup
+
 
 class Descriptions:
     def __init__(self):
         self.instances = []
         self.dictionary = []
         self.file_length = 0
+        self.subreddits = []
 
     def load(self, filename):
         self.file_length = self.file_len(filename)
@@ -31,6 +34,52 @@ class Descriptions:
                 print str(counter) + "/" + str(self.file_length)
             # print self.dictionary
             print len(self.dictionary)
+
+    def numSubredditsFromFirst(self):
+        counter = 0.0
+        filename = "data/data.txt"
+        filenameOut = "output/display_names.txt"
+        file_length = self.file_len(filename)
+        print "reading subreddits from " + filename
+        with open(filename) as reader:
+            for line in reader:
+                if len(line.strip()) == 0:
+                    continue
+
+                split_line = line.split(",")
+                split_line.pop(0)
+                for subreddit in split_line:
+                    # sometimes there is an extraneous "\n"
+                    if "\n" in subreddit:
+                        subreddit = subreddit.replace("\n", "")
+                    if subreddit not in self.subreddits:
+                        self.subreddits.append(subreddit)
+                counter += 1
+                self.update_progress(float(counter/file_length))
+        self.subreddits.sort()
+        fo = open(filenameOut, "wb")
+        for subreddit in self.subreddits:
+            fo.write(subreddit + "\n")
+        fo.close()
+
+    def update_progress(self, progress):
+        barLength = 10 # Modify this to change the length of the progress bar
+        status = ""
+        if isinstance(progress, int):
+            progress = float(progress)
+        if not isinstance(progress, float):
+            progress = 0
+            status = "error: progress var must be float\r\n"
+        if progress < 0:
+            progress = 0
+            status = "Halt...\r\n"
+        if progress >= 1:
+            progress = 1
+            status = "Done...\r\n"
+        block = int(round(barLength*progress))
+        text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), progress*100, status)
+        sys.stdout.write(text)
+        sys.stdout.flush()
 
     def file_len(self, fname):
         with open(fname) as f:
