@@ -13,7 +13,7 @@ def load_data(filename):
     instances = []
     if "subreddits_small.txt" in filename or "subreddits.txt" in filename:
         descriptions = Descriptions()
-        # descriptions.load_subreddits_from_file()
+        descriptions.load_subreddits_from_file()
         descriptions.descriptions_to_file()
         # descriptions.load()
     else:
