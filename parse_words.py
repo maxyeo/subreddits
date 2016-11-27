@@ -41,11 +41,17 @@ class Descriptions:
             # print len(self.dictionary)
 
     def descriptions_from_file(self):
-        pass
+        counter = 0.0
+        filename = "output/descriptions.txt"
+        file_length = self.file_len(filename)
+        with open(filename) as reader:
+            for line in reader:
+                print "new line"
+                print line
 
     def descriptions_to_file(self):
         counter = 0.0
-        filename = "data/subreddits_small.txt"
+        filename = "data/subreddits.txt"
         filenameOut = "output/descriptions.txt"
         file_length = self.file_len(filename)
         print "reading subreddits descriptions from " + filename
@@ -53,10 +59,12 @@ class Descriptions:
         with open(filename) as reader:
             for line in reader:
                 dic = json.loads(line)
+                abb_dic = {}
                 if dic['display_name'] in self.subreddits:
                     if dic['description']:
-                        printinfo = "{\"display_name\":\"" + dic['display_name'] + "\",\"description\":\"" + dic['description'] + "\"}"
-                        fo.write(printinfo.encode('utf8') + "\n")
+                        abb_dic['disaplay_name'] = dic['display_name']
+                        abb_dic['description'] = dic['description']
+                        fo.write(json.dumps(abb_dic) + "\n")
                 counter += 1
                 self.update_progress(float(counter/file_length))
         fo.close()
