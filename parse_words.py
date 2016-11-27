@@ -10,46 +10,47 @@ class Descriptions:
         self.instances = []
         self.dictionary = []
         self.subreddits = []
+        self.descriptions = []
         self.start_time = time.clock()
         self.end_time = time.clock()
 
-    def load(self, filename):
+    def load(self):
         counter = 0.0
-        file_length = self.file_len(filename)
+        length = len(self.descriptions)
         self.start_time = time.clock()
-        with open(filename) as reader:
-            for line in reader:
-                dic = json.loads(line)
-                if dic['description']:
-                    html = markdown.markdown(dic['description'])  # convert markdown to html
-                    html = html.replace("\n", " ") # replace \n characters with spaces
-                    cleantext = BeautifulSoup(html, 'html.parser').text # conert html to plaintext
-                    split_line = cleantext.split(" ")
-                    # print split_line
-                    stripped = [word.strip(",.!?;:()[]{}-+>~^\|$&\"'/=`*#") for word in split_line] # strip unwanted characters like punctuation
-                    stripped = [word.lower() for word in stripped]
-                    stripped = filter(None, stripped) # remove empty words
-                    for word in stripped:
-                        if word not in self.dictionary:
-                            self.dictionary.append(word)
-                counter += 1
-                self.update_progress(float(counter/file_length))
-            self.dictionary.sort()
-            # for word in self.dictionary:
-            #     print word
-            # print self.dictionary
-            # print len(self.dictionary)
+        for d in self.descriptions:
+            html = markdown.markdown(d['description'])  # convert markdown to html
+            html = html.replace("\n", " ") # replace \n characters with spaces
+            cleantext = BeautifulSoup(html, 'html.parser').text # conert html to plaintext
+            split_line = cleantext.split(" ")
+            # print split_line
+            stripped = [word.strip(",.!?;:()[]{}-+>~^\|$&\"'/=`*#") for word in split_line] # strip unwanted characters like punctuation
+            stripped = [word.lower() for word in stripped]
+            stripped = filter(None, stripped) # remove empty words
+            for word in stripped:
+                if word not in self.dictionary:
+                    self.dictionary.append(word)
+            counter += 1
+            self.update_progress(float(counter/length))
+        self.dictionary.sort()
+        # for word in self.dictionary:
+        #     print word
+        # print self.dictionary
+        print len(self.dictionary)
 
-    def descriptions_from_file(self):
+    def load_descriptions_from_file(self):
         counter = 0.0
         filename = "output/descriptions.txt"
         file_length = self.file_len(filename)
         with open(filename) as reader:
             for line in reader:
-                print "new line"
-                print line
+                dic = json.loads(line)
+                self.descriptions.append(dic)
 
+    # only subreddits from reddituserpostingbehavior makr the file
+    # only subreddits with descriptions make the file
     def descriptions_to_file(self):
+        self.start_time = time.clock()
         counter = 0.0
         filename = "data/subreddits.txt"
         filenameOut = "output/descriptions.txt"
@@ -62,7 +63,7 @@ class Descriptions:
                 abb_dic = {}
                 if dic['display_name'] in self.subreddits:
                     if dic['description']:
-                        abb_dic['disaplay_name'] = dic['display_name']
+                        abb_dic['display_name'] = dic['display_name']
                         abb_dic['description'] = dic['description']
                         fo.write(json.dumps(abb_dic) + "\n")
                 counter += 1
@@ -81,6 +82,7 @@ class Descriptions:
                 self.subreddits.append(line)
 
     def subreddits_to_file(self):
+        self.start_time = time.clock()
         counter = 0.0
         filename = "data/data.txt"
         filenameOut = "output/display_names.txt"
