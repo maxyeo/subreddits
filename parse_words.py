@@ -9,33 +9,59 @@ class Descriptions:
     def __init__(self):
         self.instances = []
         self.dictionary = []
-        self.file_length = 0
         self.subreddits = []
+        self.start_time = time.clock()
+        self.end_time = time.clock()
 
     def load(self, filename):
-        self.file_length = self.file_len(filename)
-        counter = 0
+        counter = 0.0
+        file_length = self.file_len(filename)
+        self.start_time = time.clock()
         with open(filename) as reader:
             for line in reader:
                 dic = json.loads(line)
                 if dic['description']:
-                    print dic['display_name']
                     html = markdown.markdown(dic['description'])  # convert markdown to html
                     html = html.replace("\n", " ") # replace \n characters with spaces
                     cleantext = BeautifulSoup(html, 'html.parser').text # conert html to plaintext
                     split_line = cleantext.split(" ")
                     # print split_line
-                    stripped = [word.strip(",.!?;:()[]{}->~^\|$&\"*#") for word in split_line] # strip unwanted characters like punctuation
+                    stripped = [word.strip(",.!?;:()[]{}-+>~^\|$&\"'/=`*#") for word in split_line] # strip unwanted characters like punctuation
+                    stripped = [word.lower() for word in stripped]
                     stripped = filter(None, stripped) # remove empty words
                     for word in stripped:
                         if word not in self.dictionary:
                             self.dictionary.append(word)
                 counter += 1
-                print str(counter) + "/" + str(self.file_length)
-            print self.dictionary
-            print len(self.dictionary)
+                self.update_progress(float(counter/file_length))
+            self.dictionary.sort()
+            # for word in self.dictionary:
+            #     print word
+            # print self.dictionary
+            # print len(self.dictionary)
 
-    def loadSubredditsFromFile(self):
+    def descriptions_from_file(self):
+        pass
+
+    def descriptions_to_file(self):
+        counter = 0.0
+        filename = "data/subreddits_small.txt"
+        filenameOut = "output/descriptions.txt"
+        file_length = self.file_len(filename)
+        print "reading subreddits descriptions from " + filename
+        fo = open(filenameOut, "wb")
+        with open(filename) as reader:
+            for line in reader:
+                dic = json.loads(line)
+                if dic['display_name'] in self.subreddits:
+                    if dic['description']:
+                        printinfo = "{\"display_name\":\"" + dic['display_name'] + "\",\"description\":\"" + dic['description'] + "\"}"
+                        fo.write(printinfo.encode('utf8') + "\n")
+                counter += 1
+                self.update_progress(float(counter/file_length))
+        fo.close()
+
+    def load_subreddits_from_file(self):
         filename = "output/display_names.txt"
         file_length = self.file_len(filename)
         with open(filename) as reader:
@@ -46,7 +72,7 @@ class Descriptions:
                     line = line.replace("\n", "")
                 self.subreddits.append(line)
 
-    def numSubredditsFromFirst(self):
+    def subreddits_to_file(self):
         counter = 0.0
         filename = "data/data.txt"
         filenameOut = "output/display_names.txt"
@@ -80,6 +106,8 @@ class Descriptions:
     def update_progress(self, progress):
         barLength = 10 # Modify this to change the length of the progress bar
         status = ""
+        self.end_time = time.clock()
+        time_elapsed = str(self.end_time - self.start_time) + "ms "
         if isinstance(progress, int):
             progress = float(progress)
         if not isinstance(progress, float):
@@ -92,7 +120,8 @@ class Descriptions:
             progress = 1
             status = "Done...\r\n"
         block = int(round(barLength*progress))
-        text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), progress*100, status)
+        # text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), progress*100, status)
+        text = "\rPercent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), progress*100, time_elapsed + status)
         sys.stdout.write(text)
         sys.stdout.flush()
 
