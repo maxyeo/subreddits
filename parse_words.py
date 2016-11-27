@@ -32,14 +32,12 @@ class Descriptions:
                             self.dictionary.append(word)
                 counter += 1
                 print str(counter) + "/" + str(self.file_length)
-            # print self.dictionary
+            print self.dictionary
             print len(self.dictionary)
 
     def loadSubredditsFromFile(self):
-        counter = 0.0
         filename = "output/display_names.txt"
         file_length = self.file_len(filename)
-        print "loading subreddit names from file: " + filename
         with open(filename) as reader:
             for line in reader:
                 if len(line.strip()) == 0:
@@ -47,9 +45,6 @@ class Descriptions:
                 if "\n" in line:
                     line = line.replace("\n", "")
                 self.subreddits.append(line)
-                counter += 1
-                self.update_progress(float(counter/file_length))
-        print self.subreddits
 
     def numSubredditsFromFirst(self):
         counter = 0.0
@@ -61,7 +56,6 @@ class Descriptions:
             for line in reader:
                 if len(line.strip()) == 0:
                     continue
-
                 split_line = line.split(",")
                 split_line.pop(0)
                 for subreddit in split_line:
@@ -78,6 +72,11 @@ class Descriptions:
             fo.write(subreddit + "\n")
         fo.close()
 
+    # update_progress() : Displays or updates a console progress bar
+    ## Accepts a float between 0 and 1. Any int will be converted to a float.
+    ## A value under 0 represents a 'halt'.
+    ## A value at 1 or bigger represents 100%
+    # http://stackoverflow.com/questions/3160699/python-progress-bar
     def update_progress(self, progress):
         barLength = 10 # Modify this to change the length of the progress bar
         status = ""
