@@ -17,30 +17,24 @@ class Descriptions:
     def create_instances(self):
         counter = 0.0
         length = len(self.descriptions)
+        filename = "output/word_frequencies.txt"
+        fo = open(filename, "wb")
         for d in self.descriptions:
-            html = mistune.markdown(d['description'])  # convert markdown to html
-            html = html.replace("\n", " ") # replace \n characters with spaces
-            cleantext = BeautifulSoup(html, 'html.parser').text # conert html to plaintext
-            split_line = cleantext.split(" ")
-            # print split_line
-            stripped = [word.strip(",.!?;:()[]{}-+>~^\|$&\"'/=`*#") for word in split_line] # strip unwanted characters like punctuation
-            stripped = [word.lower() for word in stripped]
-            stripped = filter(None, stripped) # remove empty words
-
-            label = ClassificationLabel(counter)
+            stripped = self.clean_text(d['description'])
+            label = ClassificationLabel(int(counter))
             fv = FeatureVector()
             for word in stripped:
                 feature = self.corpus.index(word)
-                fv.add(feature, fv.get(feature) + 1)
-
+                fv.add(feature, int(fv.get(feature) + 1))
             instance = Instance(fv, label)
             self.instances.append(instance)
-
+            line = str(label) + " "
+            for f in fv.get_keys():
+                line += str(f) + ":" + str(fv.get(f)) + " "
+            fo.write(line.encode('utf8') + "\n")
             counter += 1
             self.update_progress(float(counter/length))
-        for i in self.instances:
-            print i._label
-            print i._feature_vector.feature_vector
+        fo.close()
 
     def load_corpus_from_file(self):
         filename = "output/corpus.txt"
@@ -57,14 +51,7 @@ class Descriptions:
         length = len(self.descriptions)
         self.start_time = time.clock()
         for d in self.descriptions:
-            html = mistune.markdown(d['description'])  # convert markdown to html
-            html = html.replace("\n", " ") # replace \n characters with spaces
-            cleantext = BeautifulSoup(html, 'html.parser').text # conert html to plaintext
-            split_line = cleantext.split(" ")
-            # print split_line
-            stripped = [word.strip(",.!?;:()[]{}-+>~^\|$&\"'/=`*#") for word in split_line] # strip unwanted characters like punctuation
-            stripped = [word.lower() for word in stripped]
-            stripped = filter(None, stripped) # remove empty words
+            stripped = self.clean_text(d['description'])
             for word in stripped:
                 if word not in self.corpus:
                     self.corpus.append(word)
@@ -145,6 +132,20 @@ class Descriptions:
         for subreddit in self.subreddits:
             fo.write(subreddit + "\n")
         fo.close()
+
+    # converts raw reddit description markdown into html, then into plaintext
+    # then striped extra characters
+    # if this funciton is editted, corpus should be recreated
+    def clean_text(self, t):
+        html = mistune.markdown(t)  # convert markdown to html
+        html = html.replace("\n", " ") # replace \n characters with spaces
+        cleantext = BeautifulSoup(html, 'html.parser').text # conert html to plaintext
+        split_line = cleantext.split(" ")
+        # print split_line
+        stripped = [word.strip(",.!?;:()[]{}-+>~^\|$&\"'/=`*#") for word in split_line] # strip unwanted characters like punctuation
+        stripped = [word.lower() for word in stripped]
+        stripped = filter(None, stripped) # remove empty words
+        return stripped
 
     # update_progress() : Displays or updates a console progress bar
     ## Accepts a float between 0 and 1. Any int will be converted to a float.

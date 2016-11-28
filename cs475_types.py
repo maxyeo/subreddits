@@ -31,6 +31,9 @@ class FeatureVector:
     def getFeatureVector(self):
         return self.feature_vector
 
+    def get_keys(self):
+        return self.feature_vector.keys()
+
 
 class Instance:
     def __init__(self, feature_vector, label):
