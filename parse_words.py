@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 import json
 import mistune
 from bs4 import BeautifulSoup
-
+from cs475_types import ClassificationLabel, FeatureVector, Instance
 
 class Descriptions:
     def __init__(self):
@@ -14,13 +14,42 @@ class Descriptions:
         self.start_time = time.clock()
         self.end_time = time.clock()
 
+    def create_instances(self):
+        counter = 0.0
+        length = len(self.descriptions)
+        for d in self.descriptions:
+            html = mistune.markdown(d['description'])  # convert markdown to html
+            html = html.replace("\n", " ") # replace \n characters with spaces
+            cleantext = BeautifulSoup(html, 'html.parser').text # conert html to plaintext
+            split_line = cleantext.split(" ")
+            # print split_line
+            stripped = [word.strip(",.!?;:()[]{}-+>~^\|$&\"'/=`*#") for word in split_line] # strip unwanted characters like punctuation
+            stripped = [word.lower() for word in stripped]
+            stripped = filter(None, stripped) # remove empty words
+
+            label = ClassificationLabel(counter)
+            fv = FeatureVector()
+            for word in stripped:
+                feature = self.corpus.index(word)
+                fv.add(feature, fv.get(feature) + 1)
+
+            instance = Instance(fv, label)
+            self.instances.append(instance)
+
+            counter += 1
+            self.update_progress(float(counter/length))
+        for i in self.instances:
+            print i._label
+            print i._feature_vector.feature_vector
+
     def load_corpus_from_file(self):
         filename = "output/corpus.txt"
         # filename = "data/problem.txt"
         file_length = self.file_len(filename)
         with open(filename) as reader:
             for line in reader:
-                self.corpus.append(line)
+                word = line.replace("\n", "")
+                self.corpus.append(unicode(word, "utf-8"))
 
     def corpus_to_file(self):
         counter = 0.0
@@ -49,7 +78,7 @@ class Descriptions:
 
     def load_descriptions_from_file(self):
         filename = "output/descriptions.txt"
-        # filename = "data/problem.txt"
+        # filename = "data/descriptions_small.txt"
         file_length = self.file_len(filename)
         with open(filename) as reader:
             for line in reader:

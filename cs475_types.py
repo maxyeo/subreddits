@@ -23,7 +23,10 @@ class FeatureVector:
         self.feature_vector[index] = value
 
     def get(self, index):
-        return self.feature_vector.get(index)
+        if index in self.feature_vector:
+            return self.feature_vector.get(index)
+        return 0.0
+        # return self.feature_vector.get(index)
 
     def getFeatureVector(self):
         return self.feature_vector
