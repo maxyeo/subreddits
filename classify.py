@@ -5,6 +5,7 @@ import pickle
 
 from cs475_types import ClassificationLabel, FeatureVector, Instance, Predictor
 from parse_words import Descriptions
+from lambda_means import LambdaMeans
 
 def load_data(filename):
     # figure out what all the possible Subreddits are
@@ -81,6 +82,9 @@ def get_args():
     parser.add_argument("--predictions-file", type=str, help="The predictions file to create.")
     parser.add_argument("--algorithm", type=str, help="The name of the algorithm for training.")
 
+    parser.add_argument("--cluster-lambda", type=float, help="The value of lambda in lambda-means.", default=0.0)
+    parser.add_argument("--clustering-training-iterations", type=int, help="The number of clustering iterations.", default=10)
+
     args = parser.parse_args()
     check_args(args)
 
@@ -98,11 +102,11 @@ def check_args(args):
             raise Exception("model file specified by --model-file does not exist.")
 
 
-def train(instances, algorithm):
-    if algorithm == "perceptron":
-        perceptron = Perceptron(learning_rate, iterations)
-        perceptron.train(instances)
-        return perceptron
+def train(instances, algorithm, cluster_lambda, clustering_training_iterations):
+    if algorithm == "lambda_means":
+        lambda_means = LambdaMeans(instances, cluster_lambda, clustering_training_iterations)
+        lambda_means.train(instances)
+        return lambda_means
 
 
 def write_predictions(predictor, instances, predictions_file):
@@ -125,14 +129,14 @@ def main():
         instances = load_data(args.data)
 
         # Train the model.
-        #predictor = train(instances, args.algorithm, args.online_learning_rate, args.online_training_iterations, args.pegasos_lambda, args.knn, args.num_boosting_iterations, args.cluster_lambda, args.clustering_training_iterations, args.num_clusters)
-        #try:
-            #with open(args.model_file, 'wb') as writer:
-                #pickle.dump(predictor, writer)
-        #except IOError:
-            #raise Exception("Exception while writing to the model file.")
-        #except pickle.PickleError:
-            #raise Exception("Exception while dumping pickle.")
+        predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
+        try:
+            with open(args.model_file, 'wb') as writer:
+                pickle.dump(predictor, writer)
+        except IOError:
+            raise Exception("Exception while writing to the model file.")
+        except pickle.PickleError:
+            raise Exception("Exception while dumping pickle.")
 
     elif args.mode.lower() == "test":
         # Load the test data.
