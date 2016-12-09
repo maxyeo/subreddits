@@ -14,6 +14,9 @@ class Descriptions:
         self.start_time = time.clock()
         self.end_time = time.clock()
 
+    def load_instances(self):
+        pass
+
     def create_instances(self):
         counter = 0.0
         length = len(self.descriptions)
