@@ -8,62 +8,69 @@ from parse_words import Descriptions
 from lambda_means import LambdaMeans
 
 def load_data(filename):
-    # figure out what all the possible Subreddits are
     subreddits = []
     counter = 0
     instances = []
-    if "subreddits_small.txt" in filename or "subreddits.txt" in filename:
-        descriptions = Descriptions()
-        # descriptions.load_subreddits_from_file()
-        descriptions.load_descriptions_from_file()
-        descriptions.load_corpus_from_file()
-        descriptions.create_instances()
-    else:
-        with open(filename) as reader:
-            for line in reader:
-                if len(line.strip()) == 0:
-                    continue
 
-                split_line = line.split(",")
-                split_line.pop(0)
-                for subreddit in split_line:
-                    # sometimes there is an extraneous "\n"
-                    if "\n" in subreddit:
-                        subreddit = subreddit.replace("\n", "")
-                    if subreddit not in subreddits:
-                        subreddits.append(subreddit)
+    descriptions = Descriptions()
+    # descriptions.load_subreddits_from_file()
+    descriptions.load_descriptions_from_file()
+    descriptions.load_corpus_from_file()
+    descriptions.create_instances()
 
-                counter += 1
-                if counter % 1000 == 0:
-                    print(counter)
+    return instances
 
-        # each Subreddit's index in the FeatureVector is it's position in subreddits[]
-        # iterate through file again
-        counter = 0
-        with open(filename) as reader:
-            for line in reader:
-                if len(line.strip()) == 0:
-                    continue
+def load_more_data(filename):
+    subreddits = []
+    counter = 0
+    instances = []
 
-                split_line = line.split(",")
-                label = ClassificationLabel(split_line[0])
-                split_line.pop(0)
+    # figure out what all the possible Subreddits are
+    with open(filename) as reader:
+        for line in reader:
+            if len(line.strip()) == 0:
+                continue
 
-                feature_vector = FeatureVector()
+            split_line = line.split(",")
+            split_line.pop(0)
+            for subreddit in split_line:
+                # sometimes there is an extraneous "\n"
+                if "\n" in subreddit:
+                    subreddit = subreddit.replace("\n", "")
+                if subreddit not in subreddits:
+                    subreddits.append(subreddit)
 
-                for subreddit in split_line:
-                    # sometimes there is an extraneous "\n"
-                    if "\n" in subreddit:
-                        subreddit = subreddit.replace("\n", "")
-                    feature = subreddits.index(subreddit)
-                    feature_vector.add(feature, 1)
+            counter += 1
+            if counter % 10000 == 0:
+                print(counter)
 
-                instance = Instance(feature_vector, label)
-                instances.append(instance)
+    # each Subreddit's index in the FeatureVector is it's position in self.subreddits[]
+    # iterate through file again
+    counter = 0
+    with open(filename) as reader:
+        for line in reader:
+            if len(line.strip()) == 0:
+                continue
 
-                counter += 1
-                if counter % 1000 == 0:
-                    print(counter)
+            split_line = line.split(",")
+            label = ClassificationLabel(split_line[0])
+            split_line.pop(0)
+
+            feature_vector = FeatureVector()
+
+            for subreddit in split_line:
+                # sometimes there is an extraneous "\n"
+                if "\n" in subreddit:
+                    subreddit = subreddit.replace("\n", "")
+                feature = subreddits.index(subreddit)
+                feature_vector.add(feature, 1)
+
+            instance = Instance(feature_vector, label)
+            instances.append(instance)
+
+            counter += 1
+            if counter % 10000 == 0:
+                print(counter)
 
     # for i in instances:
     #     print i._label
@@ -104,7 +111,7 @@ def check_args(args):
 
 def train(instances, algorithm, cluster_lambda, clustering_training_iterations):
     if algorithm == "lambda_means":
-        lambda_means = LambdaMeans(instances, cluster_lambda, clustering_training_iterations)
+        lambda_means = LambdaMeans(instances, self.subreddits, cluster_lambda, clustering_training_iterations)
         lambda_means.train(instances)
         return lambda_means
 
@@ -126,10 +133,17 @@ def main():
 
     if args.mode.lower() == "train":
         # Load the training data.
-        instances = load_data(args.data)
+        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
+            instances = load_data(args.data)
+            # Train the model.
+            predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
+        else:
+            instances_and_subreddits = load_more_data(args.data)
+            instances = instances_and_subreddits[0]
+            subreddits = instances_and_subreddits[1]
+            # Train the model.
+            predictor = train(instances, subreddits, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
 
-        # Train the model.
-        predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
         try:
             with open(args.model_file, 'wb') as writer:
                 pickle.dump(predictor, writer)

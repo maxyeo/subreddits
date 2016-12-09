@@ -3,8 +3,9 @@ import math
 
 # LambdaMeans is a subclass of Predictor
 class LambdaMeans(Predictor):
-    def __init__(self, instances, cluster_lambda, clustering_training_iterations):
+    def __init__(self, instances, subreddits, cluster_lambda, clustering_training_iterations):
         self.clustering_training_iterations = clustering_training_iterations
+        self.subreddits = subreddits
         # Find mean of all instances and initialize the prototype vector to the mean of all instances
         # the size of prototype should be the maximum feature index
         self.maximum = 0
@@ -51,7 +52,11 @@ class LambdaMeans(Predictor):
     def train(self, instances):
         prototypeClusters = [[]]
         for x in range(1, self.clustering_training_iterations):
+            counter = 0
             for instance in instances:
+                counter += 1
+                if counter % 10000 == 0:
+                    print(counter)
                 # check which prototype the instance belongs to
                 closestPrototypeIndex = -1
                 closestPrototypeDistance = float("inf")
@@ -91,7 +96,10 @@ class LambdaMeans(Predictor):
 
             # maximization step
             curCluster = 0
+            counter = 0
             for cluster in prototypeClusters:
+                counter += 1
+                print counter
                 # if the cluster is empty make the prototype 0
                 newprototype = [0] * (self.maximum)
                 if (len(cluster) > 0):
@@ -124,4 +132,16 @@ class LambdaMeans(Predictor):
                 closestPrototypeIndex = curIndex
             curIndex += 1
 
-        return closestPrototypeIndex
+        # The closest prototype is stored in closestPrototypeIndex
+        closestPrototype = self.prototypes[closestPrototypeIndex]
+        highestFeature = closestPrototype[0]
+        highestFeatureIndex = 0
+        counter = 0
+        for feature in closestPrototype:
+            if feature > highestFeature:
+                highestFeature = feature
+                highestFeatureIndex = counter
+                counter += 1
+
+        # Now find the subreddit corresponding to highestFeatureIndex
+        return self.subreddits[highestFeatureIndex]
