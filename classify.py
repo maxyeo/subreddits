@@ -158,7 +158,9 @@ def main():
         if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
             instances = load_data(args.data)
             # Train the model.
-            predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
+            print len(instances)
+            return
+            # predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
         else:
             instances_and_subreddits = load_more_data(args.data)
             instances = instances_and_subreddits[0]
