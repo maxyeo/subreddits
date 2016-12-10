@@ -28,6 +28,7 @@ class Descriptions:
                         fv.add(num[0], num[1])
                 instance = Instance(fv, label)
                 self.instances.append(instance)
+        return self.instances
 
     def create_instances(self):
         counter = 0.0

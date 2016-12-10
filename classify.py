@@ -8,19 +8,12 @@ from parse_words import Descriptions
 from lambda_means import LambdaMeans
 
 def load_data(filename):
-    subreddits = []
-    counter = 0
-    instances = []
-
     descriptions = Descriptions()
     # descriptions.load_subreddits_from_file()
-    descriptions.load_descriptions_from_file()
-    descriptions.load_corpus_from_file()
-    descriptions.create_instances()
-
-    print instances
-
-    return instances
+    # descriptions.load_descriptions_from_file()
+    # descriptions.load_corpus_from_file()
+    # descriptions.create_instances()
+    return descriptions.load_instances()
 
 def load_more_data(filename):
     subreddits = []
