@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 import json
 import mistune
 from bs4 import BeautifulSoup
+from nltk.corpus import stopwords
 from cs475_types import ClassificationLabel, FeatureVector, Instance
 
 class Descriptions:
@@ -13,6 +14,7 @@ class Descriptions:
         self.descriptions = []
         self.start_time = time.clock()
         self.end_time = time.clock()
+        self.cachedStopWords = stopwords.words("english")
 
     def load_instances(self):
         filename = "output/word_frequencies.txt"
@@ -87,6 +89,22 @@ class Descriptions:
             for line in reader:
                 dic = json.loads(line)
                 self.descriptions.append(dic)
+
+    def unstop_descriptions(self):
+        self.start_time = time.clock()
+        counter = 0.0
+        self.load_descriptions_from_file()
+        filenameOut = "output/unstopped_descriptions.txt"
+        file_length = len(self.descriptions)
+        fo = open(filenameOut, "wb")
+        for d in self.descriptions:
+            abb_dic = {}
+            abb_dic['display_name'] = d['display_name']
+            abb_dic['unstopped_description'] = ' '.join([word for word in self.clean_text(d['description']) if word not in (self.cachedStopWords)])
+            fo.write(json.dumps(abb_dic) + "\n")
+            counter += 1
+            self.update_progress(float(counter/file_length))
+        fo.close()
 
     # only subreddits from reddituserpostingbehavior makr the file
     # only subreddits with descriptions make the file
