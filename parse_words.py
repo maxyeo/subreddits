@@ -14,6 +14,21 @@ class Descriptions:
         self.start_time = time.clock()
         self.end_time = time.clock()
 
+    def load_instances(self):
+        filename = "output/word_frequencies.txt"
+        with open(filename) as reader:
+            for line in reader:
+                split_line = line.split(" ")
+                label = ClassificationLabel(split_line[0])
+                split_line.pop(0)
+                fv = FeatureVector()
+                for word in split_line:
+                    if word != "\n":
+                        num = word.split(":")
+                        fv.add(num[0], num[1])
+                instance = Instance(fv, label)
+                self.instances.append(instance)
+
     def create_instances(self):
         counter = 0.0
         length = len(self.descriptions)

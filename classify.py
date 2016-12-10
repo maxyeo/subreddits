@@ -111,7 +111,7 @@ def check_args(args):
 
 def train(instances, algorithm, cluster_lambda, clustering_training_iterations):
     if algorithm == "lambda_means":
-        lambda_means = LambdaMeans(instances, self.subreddits, cluster_lambda, clustering_training_iterations)
+        lambda_means = LambdaMeans(instances, cluster_lambda, clustering_training_iterations)
         lambda_means.train(instances)
         return lambda_means
 
@@ -133,17 +133,10 @@ def main():
 
     if args.mode.lower() == "train":
         # Load the training data.
-        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
-            instances = load_data(args.data)
-            # Train the model.
-            predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
-        else:
-            instances_and_subreddits = load_more_data(args.data)
-            instances = instances_and_subreddits[0]
-            subreddits = instances_and_subreddits[1]
-            # Train the model.
-            predictor = train(instances, subreddits, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
+        instances = load_data(args.data)
 
+        # Train the model.
+        predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
         try:
             with open(args.model_file, 'wb') as writer:
                 pickle.dump(predictor, writer)
