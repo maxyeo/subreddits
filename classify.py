@@ -74,6 +74,37 @@ def load_more_data(filename):
 
     return (instances, subreddits)
 
+# When loading in the user data for eventual prediction, we call this function, and pass in the old subreddit data
+# If we haven't seen a subreddit before, we will ignore it
+def load_test_data(filename, subreddits):
+    instances = []
+
+    # each Subreddit's index in the FeatureVector is it's position in subreddits[]
+    # iterate through file again
+    with open(filename) as reader:
+        for line in reader:
+            if len(line.strip()) == 0:
+                continue
+
+            split_line = line.split(",")
+            label = ClassificationLabel(split_line[0])
+            split_line.pop(0)
+
+            feature_vector = FeatureVector()
+
+            for subreddit in split_line:
+                # sometimes there is an extraneous "\n"
+                if "\n" in subreddit:
+                    subreddit = subreddit.replace("\n", "")
+                if subreddit in subreddits:
+                    feature = subreddits.index(subreddit)
+                feature_vector.add(feature, 1)
+
+            instance = Instance(feature_vector, label)
+            instances.append(instance)
+
+    return instances
+
 def get_args():
     parser = argparse.ArgumentParser(description="This is the main test harness for your algorithms.")
 
@@ -147,17 +178,16 @@ def main():
             raise Exception("Exception while dumping pickle.")
 
     elif args.mode.lower() == "test":
-        # Load the test data.
-        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
-            instances = load_data(args.data)
-        else:
-            instances = load_more_data(args.data)[0]
-
         predictor = None
         # Load the model.
         try:
             with open(args.model_file, 'rb') as reader:
                 predictor = pickle.load(reader)
+                # Load the test data.
+                if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
+                    instances = load_data(args.data)
+                else:
+                    instances = load_test_data(args.data, predictor.subreddits)
         except IOError:
             raise Exception("Exception while reading the model file.")
         except pickle.PickleError:
