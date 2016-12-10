@@ -148,7 +148,10 @@ def main():
 
     elif args.mode.lower() == "test":
         # Load the test data.
-        instances = load_data(args.data)
+        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
+            instances = load_data(args.data)
+        else:
+            instances = load_more_data(args.data)[0]
 
         predictor = None
         # Load the model.
