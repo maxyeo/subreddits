@@ -133,7 +133,17 @@ def main():
 
     if args.mode.lower() == "train":
         # Load the training data.
-        instances = load_data(args.data)
+        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
+            instances = load_data(args.data)
+            # Train the model.
+            predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
+        else:
+            instances_and_subreddits = load_more_data(args.data)
+            instances = instances_and_subreddits[0]
+            subreddits = instances_and_subreddits[1]
+            # Train the model.
+            predictor = train(instances, subreddits, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
+
 
         # Train the model.
         predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
