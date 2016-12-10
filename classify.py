@@ -41,7 +41,7 @@ def load_more_data(filename):
                     subreddits.append(subreddit)
 
             counter += 1
-            if counter % 10000 == 0:
+            if counter % 100 == 0:
                 print(counter)
 
     # each Subreddit's index in the FeatureVector is it's position in self.subreddits[]
@@ -69,7 +69,7 @@ def load_more_data(filename):
             instances.append(instance)
 
             counter += 1
-            if counter % 10000 == 0:
+            if counter % 100 == 0:
                 print(counter)
 
     return (instances, subreddits)

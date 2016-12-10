@@ -55,7 +55,7 @@ class LambdaMeans(Predictor):
             counter = 0
             for instance in instances:
                 counter += 1
-                if counter % 10000 == 0:
+                if counter % 100 == 0:
                     print(counter)
                 # check which prototype the instance belongs to
                 closestPrototypeIndex = -1
@@ -134,12 +134,12 @@ class LambdaMeans(Predictor):
 
         # The closest prototype is stored in closestPrototypeIndex
         closestPrototype = self.prototypes[closestPrototypeIndex]
-        highestFeature = closestPrototype[0]
+        highestFeatureValue = closestPrototype[0]
         highestFeatureIndex = 0
         counter = 0
         for feature in closestPrototype:
-            if feature > highestFeature:
-                highestFeature = feature
+            if feature >= highestFeatureValue:
+                highestFeatureValue = feature
                 highestFeatureIndex = counter
                 counter += 1
 
