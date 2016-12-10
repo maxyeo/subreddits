@@ -72,11 +72,7 @@ def load_more_data(filename):
             if counter % 10000 == 0:
                 print(counter)
 
-    # for i in instances:
-    #     print i._label
-    #     print i._feature_vector.feature_vector
-    return instances
-
+    return (instances, subreddits)
 
 def get_args():
     parser = argparse.ArgumentParser(description="This is the main test harness for your algorithms.")
@@ -109,12 +105,10 @@ def check_args(args):
             raise Exception("model file specified by --model-file does not exist.")
 
 
-def train(instances, algorithm, cluster_lambda, clustering_training_iterations):
-    if algorithm == "lambda_means":
-        lambda_means = LambdaMeans(instances, cluster_lambda, clustering_training_iterations)
-        lambda_means.train(instances)
-        return lambda_means
-
+def train_lambda_means(instances, subreddits, algorithm, cluster_lambda, clustering_training_iterations):
+    lambda_means = LambdaMeans(instances, subreddits, cluster_lambda, clustering_training_iterations)
+    lambda_means.train(instances)
+    return lambda_means
 
 def write_predictions(predictor, instances, predictions_file):
     try:
@@ -142,11 +136,8 @@ def main():
             instances = instances_and_subreddits[0]
             subreddits = instances_and_subreddits[1]
             # Train the model.
-            predictor = train(instances, subreddits, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
+            predictor = train_lambda_means(instances, subreddits, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
 
-
-        # Train the model.
-        predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
         try:
             with open(args.model_file, 'wb') as writer:
                 pickle.dump(predictor, writer)
