@@ -18,6 +18,8 @@ def load_data(filename):
     descriptions.load_corpus_from_file()
     descriptions.create_instances()
 
+    print instances
+
     return instances
 
 def load_more_data(filename):
@@ -102,6 +104,8 @@ def load_test_data(filename, subreddits):
 
             instance = Instance(feature_vector, label)
             instances.append(instance)
+
+    print instances[0]._feature_vector.getFeatureVector()
 
     return instances
 

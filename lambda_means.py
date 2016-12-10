@@ -1,5 +1,6 @@
 from cs475_types import Predictor
 import math
+import time
 
 # LambdaMeans is a subclass of Predictor
 class LambdaMeans(Predictor):
@@ -76,7 +77,7 @@ class LambdaMeans(Predictor):
                         closestPrototypeIndex = curIndex
                     curIndex += 1
 
-                # if instane is farther than lambda
+                # if instance is farther than lambda
                 if (closestPrototypeDistance > self.clambda):
                     # create a new prototype
                     # initialize prototype with 0s
@@ -144,4 +145,6 @@ class LambdaMeans(Predictor):
                 counter += 1
 
         # Now find the subreddit corresponding to highestFeatureIndex
+        if int(str(instance._label)) % 100 == 0:
+            print str(instance._label)
         return self.subreddits[highestFeatureIndex]
