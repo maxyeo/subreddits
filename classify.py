@@ -133,7 +133,7 @@ def check_args(args):
 
 def train(instances, algorithm, cluster_lambda, clustering_training_iterations):
     if algorithm == "lev":
-        alg = Levenshtein(instances)
+        alg = Levenshtein(instances, cluster_lambda)
         alg.train()
         return alg
 
