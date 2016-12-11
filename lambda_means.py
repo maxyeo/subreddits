@@ -70,7 +70,7 @@ class LambdaMeans(Predictor):
     def predict(self, instance):
         closestPrototypeIndex = self.getClosestPrototypeIndexAndDistance(instance)[0]
         closestPrototype = self.prototypes[closestPrototypeIndex]
-        highestFeatureValue = closestPrototype.index(max(closestPrototype))
+        highestFeatureIndex = np.where(closestPrototype == max(closestPrototype))[0][0]
 
         # Now find the subreddit corresponding to highestFeatureIndex
         if int(str(instance._label)) % 100 == 0:
