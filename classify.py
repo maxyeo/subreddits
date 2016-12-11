@@ -4,16 +4,22 @@ import sys
 import pickle
 
 from cs475_types import ClassificationLabel, FeatureVector, Instance, Predictor
+from levenshtein import Levenshtein
 from parse_words import Descriptions
 from lambda_means import LambdaMeans
 
-def load_data(filename):
-    descriptions = Descriptions()
-    # descriptions.load_subreddits_from_file()
-    # descriptions.load_descriptions_from_file()
-    # descriptions.load_corpus_from_file()
-    # descriptions.create_instances()
-    return descriptions.load_instances()
+def load_data(alg, filename):
+    if alg == "knn":
+        descriptions = Descriptions()
+        # descriptions.load_subreddits_from_file()
+        # descriptions.load_descriptions_from_file()
+        # descriptions.load_corpus_from_file()
+        # descriptions.create_instances()
+        return descriptions.load_instances()
+    elif alg == "lev":
+        descriptions = Descriptions()
+        # descriptions.unstop_descriptions()
+        return descriptions.load_unstopped_descriptions()
 
 def load_more_data(filename):
     subreddits = []
@@ -132,6 +138,15 @@ def check_args(args):
         if not os.path.exists(args.model_file):
             raise Exception("model file specified by --model-file does not exist.")
 
+def train(instances, algorithm, cluster_lambda, clustering_training_iterations):
+    if algorithm == "lev":
+        print "starting lev"
+        alg = Levenshtein(instances)
+        print "starting train lev"
+        alg.train()
+        print "trained lev"
+        return alg
+
 
 def train_lambda_means(instances, subreddits, algorithm, cluster_lambda, clustering_training_iterations):
     lambda_means = LambdaMeans(instances, subreddits, cluster_lambda, clustering_training_iterations)
@@ -155,12 +170,11 @@ def main():
 
     if args.mode.lower() == "train":
         # Load the training data.
-        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
-            instances = load_data(args.data)
+        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data or "unstopped_descriptions.txt" in args.data:
+            instances = load_data(args.algorithm, args.data)
             # Train the model.
-            print len(instances)
+            predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
             return
-            # predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
         else:
             instances_and_subreddits = load_more_data(args.data)
             instances = instances_and_subreddits[0]

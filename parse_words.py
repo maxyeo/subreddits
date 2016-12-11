@@ -81,14 +81,17 @@ class Descriptions:
             fo.write(word.encode('utf8') + "\n")
         fo.close()
 
-    def load_descriptions_from_file(self):
-        filename = "output/descriptions.txt"
+    def load_descriptions_from_file(self, filename="output/descriptions.txt"):
         # filename = "data/descriptions_small.txt"
         file_length = self.file_len(filename)
         with open(filename) as reader:
             for line in reader:
                 dic = json.loads(line)
                 self.descriptions.append(dic)
+
+    def load_unstopped_descriptions(self):
+        self.load_descriptions_from_file("output/unstopped_descriptions.txt")
+        return self.descriptions
 
     def unstop_descriptions(self):
         self.start_time = time.clock()
