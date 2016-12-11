@@ -142,6 +142,7 @@ class Descriptions:
                 if "\n" in line:
                     line = line.replace("\n", "")
                 self.subreddits.append(line)
+        return self.subreddits
 
     def subreddits_to_file(self):
         self.start_time = time.clock()

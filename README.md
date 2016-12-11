@@ -64,5 +64,15 @@ To make Levenshtein Distance operate better, we cleaned the descriptions by remo
 >>> descriptions.load_unstopped_descriptions()`
 ```
 
-To train lambda_means algorithm:
+To run levenshtein algorithm:
 `python classify.py --mode train --data output/unstopped_descriptions.txt --model-file output/unstopped_model.txt --algorithm lev`
+
+### Lambda Means on a Smaller Sample Data Set
+To train lambda_means algorithm on a smaller sample:
+`python classify.py --mode train --data output/word_frequencies_sample.txt --model-file output/word_frequencies_sample_model.txt --algorithm lambda_means`
+
+To run lambda_means algorithm on a smaller sample:
+`python classify.py --mode test --algorithm lambda_means --model-file output/word_frequencies_sample_model.txt --data output/word_frequencies_sample_test.txt --predictions-file output/word_frequencies_sample_predictions.txt`
+
+To check the prediction accuracy on a smaller sample:
+`python compute_accuracy.py output/word_frequencies_sample_test.txt output/word_frequencies_sample_predictions.txt`
