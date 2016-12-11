@@ -1,5 +1,6 @@
 from cs475_types import Predictor
 import math
+import numpy as np
 
 # LambdaMeans is a subclass of Predictor
 class LambdaMeans(Predictor):
