@@ -17,7 +17,6 @@ def load_data(filename):
 
 def load_more_data(filename):
     subreddits = []
-    counter = 0
     instances = []
 
     # figure out what all the possible Subreddits are
@@ -34,10 +33,6 @@ def load_more_data(filename):
                     subreddit = subreddit.replace("\n", "")
                 if subreddit not in subreddits:
                     subreddits.append(subreddit)
-
-            counter += 1
-            if counter % 100 == 0:
-                print(counter)
 
     # each Subreddit's index in the FeatureVector is it's position in self.subreddits[]
     # iterate through file again
@@ -64,8 +59,8 @@ def load_more_data(filename):
             instances.append(instance)
 
             counter += 1
-            if counter % 100 == 0:
-                print(counter)
+            #if counter % 100 == 0:
+                #print(counter)
 
     return (instances, subreddits)
 
@@ -97,8 +92,6 @@ def load_test_data(filename, subreddits):
 
             instance = Instance(feature_vector, label)
             instances.append(instance)
-
-    print instances[0]._feature_vector.getFeatureVector()
 
     return instances
 
@@ -158,8 +151,6 @@ def main():
         if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data:
             instances = load_data(args.data)
             # Train the model.
-            print len(instances)
-            return
             # predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
         else:
             instances_and_subreddits = load_more_data(args.data)

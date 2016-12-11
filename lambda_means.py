@@ -11,30 +11,19 @@ class LambdaMeans(Predictor):
         # the size of prototype should be the maximum feature index
         self.maximum = self.find_max_index(instances)
 
-        # initialize prototype with 0s
-        prototype = [0] * (self.maximum)
+        prototype_array = []
+        for instance in instances:
+            prototype_array.append(self.create_prototype(instance._feature_vector.getFeatureVector()))
 
-        for x in range(1, self.maximum + 1):
-            for instance in instances:
-                value = instance._feature_vector.getFeatureVector().get(x)
-                if value is not None:
-                    prototype[x - 1] += value
-            prototype[x - 1] /= len(instances)
+        prototype = np.mean(np.array(prototype_array), axis=0)
+
 
         self.clambda = cluster_lambda
         # Set the value of lambda to the average distance from each training instance to the mean prototype vector
         distances = 0
         if self.clambda == 0.0:
             for instance in instances:
-                running_square_sum = 0
-                for x in range(1, self.maximum + 1):
-                    instanceVal = instance._feature_vector.getFeatureVector().get(x)
-                    if instanceVal is None:
-                        instanceVal = 0
-                    prototypeVal = prototype[x - 1]
-
-                    running_square_sum += math.pow(instanceVal - prototypeVal, 2)
-                distances += running_square_sum
+                distances += self.get_distance(prototype, instance._feature_vector.getFeatureVector())
 
             # Find average of all instances
             self.clambda = distances / len(instances)
@@ -61,39 +50,26 @@ class LambdaMeans(Predictor):
                     self.prototypes.append(prototype)
 
                     # assign instance to new prototype
-                    prototypeClusters.append([instance])
+                    prototypeClusters.append([self.create_prototype(instance._feature_vector.getFeatureVector())])
                 else:
-                    prototypeClusters[closestPrototypeIndex].append(instance)
+                    prototypeClusters[closestPrototypeIndex].append(self.create_prototype(instance._feature_vector.getFeatureVector()))
 
-            print x
             # maximization step
             curCluster = 0
             for cluster in prototypeClusters:
                 # if the cluster is empty make the prototype 0
-                newprototype = [0] * (self.maximum)
-                if len(cluster) > 0:
-                    for x in range(1, self.maximum + 1):
-                        for instance in cluster:
-                            value = instance._feature_vector.getFeatureVector().get(x)
-                            if value is not None:
-                                newprototype[x - 1] += value
-                        newprototype[x - 1] /= len(cluster)
+                if len(cluster) == 0:
+                    newprototype = [0] * self.maximum
+                else:
+                    newprototype = np.mean(np.array(cluster), axis=0)
 
                 self.prototypes[curCluster] = newprototype
                 curCluster += 1
-            print x
 
     def predict(self, instance):
         closestPrototypeIndex = self.getClosestPrototypeIndexAndDistance(instance)[0]
         closestPrototype = self.prototypes[closestPrototypeIndex]
-        highestFeatureValue = closestPrototype[0]
-        highestFeatureIndex = 0
-        counter = 0
-        for feature in closestPrototype:
-            if feature >= highestFeatureValue:
-                highestFeatureValue = feature
-                highestFeatureIndex = counter
-                counter += 1
+        highestFeatureValue = closestPrototype.index(max(closestPrototype))
 
         # Now find the subreddit corresponding to highestFeatureIndex
         if int(str(instance._label)) % 100 == 0:
@@ -101,16 +77,13 @@ class LambdaMeans(Predictor):
         return self.subreddits[highestFeatureIndex]
 
     def find_max_index(self, instances):
-        maximum = -1
+        global_max = -1
         for instance in instances:
-            instanceMax = 0
-            for key in instance._feature_vector.getFeatureVector().iterkeys():
-                if key > instanceMax:
-                    instanceMax = key
-            if instanceMax > maximum:
-                maximum = instanceMax
+            local_max = max(instance._feature_vector.getFeatureVector().iterkeys())
+            if local_max > global_max:
+                global_max = local_max
 
-        return maximum
+        return global_max
 
     def getClosestPrototypeIndexAndDistance(self, instance):
         closestPrototypeIndex = -1
@@ -119,7 +92,7 @@ class LambdaMeans(Predictor):
         for prototype in self.prototypes:
             distance = self.get_distance(prototype, instance._feature_vector.getFeatureVector())
 
-            if (distance < closestPrototypeDistance):
+            if distance < closestPrototypeDistance:
                 closestPrototypeDistance = distance
                 closestPrototypeIndex = curIndex
             curIndex += 1
@@ -130,21 +103,13 @@ class LambdaMeans(Predictor):
         # initialize prototype with 0s
         prototype = [0] * self.maximum
 
-        for x in range(1, self.maximum + 1):
-            value = instance_feature_vector.get(x)
-            if value is not None:
-                prototype[x - 1] = value
+        for key, value in instance_feature_vector.iteritems():
+            prototype[key - 1] = value
 
         return prototype
 
     def get_distance(self, prototype, instance_feature_vector):
-        running_square_sum = 0
-        for x in range(0, self.maximum):
-            instanceVal = instance_feature_vector.get(x + 1)
-            if instanceVal is None:
-                instanceVal = 0
-            prototypeVal = prototype[x]
+        a = np.array(prototype)
+        b = np.array(self.create_prototype(instance_feature_vector))
 
-            running_square_sum += math.pow(instanceVal - prototypeVal, 2)
-
-        return running_square_sum
+        return math.pow(np.linalg.norm(a-b), 2)
