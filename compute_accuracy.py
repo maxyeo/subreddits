@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import ast
 
 if len(sys.argv) != 3:
     print 'usage: %s data predictions' % sys.argv[0]
@@ -30,7 +31,7 @@ predicted_labels = []
 for line in predictions:
     if "\n" in line:
         line = line.replace("\n", "")
-    predicted_labels.append(line)
+    predicted_labels.append(ast.literal_eval(line))
 
 data.close()
 predictions.close()
@@ -43,7 +44,7 @@ match = 0
 total = len(predicted_labels)
 
 for ii in range(len(predicted_labels)):
-    if predicted_labels[ii] in true_labels[ii]:
+    if len(set(predicted_labels[ii]).intersection(set(true_labels[ii]))) > 0:
         match += 1
 
 print 'Accuracy: %f (%d/%d)' % ((float(match)/float(total)), match, total)

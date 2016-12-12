@@ -29,7 +29,7 @@ class LambdaMeans(Predictor):
             # Find average of all instances
             self.clambda = distances / len(instances)
 
-        self.clambda = self.clambda / 100.0
+        self.clambda = self.clambda / 4
 
         self.num_clusters = 1
         self.prototypes = [prototype]
@@ -77,15 +77,16 @@ class LambdaMeans(Predictor):
         closestPrototypeIndex = self.getClosestPrototypeIndexAndDistance(instance)[0]
         closestPrototype = self.prototypes[closestPrototypeIndex]
 
-        highestFeatureIndex = 0
+        highestFeatureIndex = [0]
         highestFeatureValue = max(closestPrototype)
-        if highestFeatureValue != 0:
-            highestFeatureIndex = np.where(closestPrototype == highestFeatureValue)[0][0]
+        #if highestFeatureValue != 0:
+        #highestFeatureIndex = np.where(closestPrototype == highestFeatureValue)[0][0]
+        highestFeatureIndex = np.argpartition(closestPrototype, -10)[-10:]
 
         # Now find the subreddit corresponding to highestFeatureIndex
         if int(str(instance._label)) % 100 == 0:
             print str(instance._label)
-        return self.subreddits[highestFeatureIndex]
+        return list(np.array(self.subreddits)[highestFeatureIndex])
 
     def find_max_index(self, instances):
         global_max = -1
