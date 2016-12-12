@@ -135,7 +135,7 @@ def train(instances, subreddits, algorithm, cluster_lambda, clustering_training_
         alg = Levenshtein(instances, cluster_lambda)
         alg.train()
         return alg
-    elif algorithm == "knn":
+    elif algorithm == "lambda_means":
         alg = LambdaMeans(instances, subreddits, cluster_lambda, clustering_training_iterations)
         alg.train(instances)
         return alg
