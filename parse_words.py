@@ -27,7 +27,7 @@ class Descriptions:
                 for word in split_line:
                     if word != "\n":
                         num = word.split(":")
-                        fv.add(num[0], num[1])
+                        fv.add(int(num[0]),int(num[1]))
                 instance = Instance(fv, label)
                 self.instances.append(instance)
         return self.instances
@@ -142,6 +142,7 @@ class Descriptions:
                 if "\n" in line:
                     line = line.replace("\n", "")
                 self.subreddits.append(line)
+        return self.subreddits
 
     def subreddits_to_file(self):
         self.start_time = time.clock()

@@ -9,17 +9,16 @@ from parse_words import Descriptions
 from lambda_means import LambdaMeans
 
 def load_data(alg, filename):
-    if alg == "knn":
-        descriptions = Descriptions()
+    descriptions = Descriptions()
+    if alg == "lambda_means":
         # descriptions.load_subreddits_from_file()
         # descriptions.load_descriptions_from_file()
         # descriptions.load_corpus_from_file()
         # descriptions.create_instances()
-        return descriptions.load_instances()
+        return descriptions.load_instances(), descriptions.load_subreddits_from_file()
     elif alg == "lev":
-        descriptions = Descriptions()
         # descriptions.unstop_descriptions()
-        return descriptions.load_unstopped_descriptions()
+        return descriptions.load_unstopped_descriptions(), descriptions.load_subreddits_from_file()
 
 def load_more_data(filename):
     subreddits = []
@@ -131,12 +130,15 @@ def check_args(args):
         if not os.path.exists(args.model_file):
             raise Exception("model file specified by --model-file does not exist.")
 
-def train(instances, algorithm, cluster_lambda, clustering_training_iterations):
+def train(instances, subreddits, algorithm, cluster_lambda, clustering_training_iterations):
     if algorithm == "lev":
-        alg = Levenshtein(instances)
+        alg = Levenshtein(instances, cluster_lambda)
         alg.train()
         return alg
-
+    elif algorithm == "lambda_means":
+        alg = LambdaMeans(instances, subreddits, cluster_lambda, clustering_training_iterations)
+        alg.train(instances)
+        return alg
 
 def train_lambda_means(instances, subreddits, algorithm, cluster_lambda, clustering_training_iterations):
     lambda_means = LambdaMeans(instances, subreddits, cluster_lambda, clustering_training_iterations)
@@ -160,11 +162,10 @@ def main():
 
     if args.mode.lower() == "train":
         # Load the training data.
-        if "subreddits_small.txt" in args.data or "subreddits.txt" in args.data or "unstopped_descriptions.txt" in args.data:
-            instances = load_data(args.algorithm, args.data)
+        if "unstopped" in args.data or "word_frequencies" in args.data:
+            instances, subreddits = load_data(args.algorithm, args.data)
             # Train the model.
-            predictor = train(instances, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
-            return
+            predictor = train(instances, subreddits, args.algorithm, args.cluster_lambda, args.clustering_training_iterations)
         else:
             instances_and_subreddits = load_more_data(args.data)
             instances = instances_and_subreddits[0]

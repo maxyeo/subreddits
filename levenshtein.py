@@ -3,29 +3,34 @@ from fuzzywuzzy import fuzz, process
 from heapq import heappush, heappop
 
 class Levenshtein:
-	def __init__(self, instances):
+	def __init__(self, instances, cluster_lambda):
 		self.instances = instances
 		self.descriptions = []
 		for i in instances:
 			self.descriptions.append(i["unstopped_description"])
+		self.cluster_lambda = cluster_lambda
+		# for testing
+		self.cluster_lambda = 5
 		self.start_time = time.clock()
 		self.end_time = time.clock()
 
 	def train(self):
-		counter = 0
-		file_length = len(self.instances)
-		for subreddit in self.instances:
+		counter = 0.0
+		file_length = len(self.instances) * 100
+		less_subreddits = self.instances[:100]
+		one_subreddit = []
+		one_subreddit.append(self.instances[1])
+		for subreddit in one_subreddit:
 			maxScores = []
-			for subredditB in self.instances:
+			for subredditB in less_subreddits:
 				if subreddit["display_name"] != subredditB["display_name"]:
-					score = fuzz.partial_ratio(subreddit["unstopped_description"], subredditB["unstopped_description"])
+					score = fuzz.partial_ratio(subreddit["unstopped_description"], subredditB["unstopped_description"]) * -1
 					heappush(maxScores, (score, subredditB))
 					counter += 1
-					self.end_time = time.clock()
-					time_elapsed = str(self.end_time - self.start_time) + "ms "
-					print str(counter) + " / " + str(file_length) + " : " + time_elapsed + " " + str(score) + " " + subredditB["display_name"]
-					# self.update_progress(float(counter/file_length))
-			print heappop(maxScores)
+					self.update_progress(float(counter/99))
+			print subreddit["display_name"]
+			for t in xrange(self.cluster_lambda):
+				print str(t + 1) + ") " + heappop(maxScores)[1]["display_name"]
 
 	# update_progress() : Displays or updates a console progress bar
 	## Accepts a float between 0 and 1. Any int will be converted to a float.

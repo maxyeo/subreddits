@@ -90,7 +90,7 @@ class LambdaMeans(Predictor):
     def find_max_index(self, instances):
         global_max = -1
         for instance in instances:
-            local_max = max(instance._feature_vector.getFeatureVector().iterkeys())
+            local_max = max(instance._feature_vector.get_keys(), key=int) if instance._feature_vector.get_keys() else 1
             if local_max > global_max:
                 global_max = local_max
 
