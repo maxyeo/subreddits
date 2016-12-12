@@ -29,16 +29,22 @@ class LambdaMeans(Predictor):
             # Find average of all instances
             self.clambda = distances / len(instances)
 
+        self.clambda = self.clambda / 100.0
+
         self.num_clusters = 1
         self.prototypes = [prototype]
 
     def train(self, instances):
         for x in range(1, self.clustering_training_iterations + 1):
-            print x
+            #print x
             prototypeClusters = [] # A list of lists
             for prototype in self.prototypes:
                 prototypeClusters.append([])
+            counter = 0
             for instance in instances:
+                counter += 1
+                if counter % 100 == 0:
+                    print counter
                 # check which prototype the instance belongs to
                 closestPrototype = self.getClosestPrototypeIndexAndDistance(instance)
                 closestPrototypeIndex = closestPrototype[0]
@@ -70,7 +76,11 @@ class LambdaMeans(Predictor):
     def predict(self, instance):
         closestPrototypeIndex = self.getClosestPrototypeIndexAndDistance(instance)[0]
         closestPrototype = self.prototypes[closestPrototypeIndex]
-        highestFeatureIndex = np.where(closestPrototype == max(closestPrototype))[0][0]
+
+        highestFeatureIndex = 0
+        highestFeatureValue = max(closestPrototype)
+        if highestFeatureValue != 0:
+            highestFeatureIndex = np.where(closestPrototype == highestFeatureValue)[0][0]
 
         # Now find the subreddit corresponding to highestFeatureIndex
         if int(str(instance._label)) % 100 == 0:
